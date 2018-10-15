@@ -1,0 +1,13 @@
+version: '3.7'
+services:
+
+  sniwi:
+    container_name: sniwi
+    build: .
+    stdin_open: true
+    tty: true
+    command: python3 -m sniwi
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
