@@ -33,10 +33,34 @@ python3 -m sniwi
 #### Using docker
 
 ```bash
-# first build the application, you need to do this only once
+# first build the docker image, you need to do this only once
 docker-compose build
 # then launch the app
 docker-compose --rm run sniwi
 ```
 
 Because tty and stdin are set to true in docker-compose, running the app will launch the app directly inside your terminal
+
+### Unit Tests
+
+Done with `pytest`
+
+#### Using docker (recommanded)
+
+```bash
+# first build the docker image, you need to do this only once
+docker-compose -f ./docker-compose.test.yml build
+# Then run pytest
+docker-compose -f ./docker-compose.test.yml run --rm pytest
+```
+
+#### Using pytest
+
+```bash
+# First install pytest >= 3.8.2 for python3.7
+pip3 install pytest==3.8.2
+# Then run the tests
+pytest ./tests -v
+```
+
+
