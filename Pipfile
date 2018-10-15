@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 ptvsd = "==4.1.3"
 urwid = "==2.0.1"
+pytest = "==3.8.2"
 
 [dev-packages]
 
