@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kruupos/sniwi.svg?branch=master)](https://travis-ci.org/kruupos/sniwi)
+
 # SNIWI
 
 Sniwi - the kiwi sniffer, is a monitoring tool intended to alert any user on detecting abnormalities with HTTP traffic on his machine.
