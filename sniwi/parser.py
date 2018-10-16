@@ -5,6 +5,8 @@ Decrepyt information of log files and retrieve needed information
 import re
 from datetime import datetime
 
+from sniwi.utils import get_section
+
 
 class LogParser(object):
     """
@@ -19,12 +21,12 @@ class LogParser(object):
     """
 
     # Regex for the common Apache log format.
-    __valid_log_parts = [
+    __std_log_parts = [
         r'(?P<host>\S+)',              # host %h
         r'\s+\S+',                     # indent %l (unused)
         r'\s+(?P<user>\S+)',           # user %u
         r'\s+\[(?P<time>.+)\]',        # time %t
-        r'\s+"(?P<request>.*)"',       # request "%r"
+        r'\s+"(?P<request>(?P<method>[A-Z]+)\s(?P<url>\S+).*)"',       # request "%r"
         r'\s+(?P<status>[0-9]+)',      # status %>s
         r'\s+(?P<size>\S+)',           # size %b (careful, can be '-')
         r'(\s+"(?P<referrer>.*?)")?',  # referrer "%{Referer}i"
@@ -34,10 +36,10 @@ class LogParser(object):
 
     __date_fmt = '%d/%b/%Y:%H:%M:%S %z'
 
-    __pattern = re.compile(r''.join(__valid_log_parts)+r'\s*\Z')
+    __pattern = re.compile(r''.join(__std_log_parts)+r'\s*\Z')
 
     @classmethod
-    def valid_log(cls, log):
+    def std_log(cls, log):
         """
         params:
             log: str
@@ -53,6 +55,8 @@ class LogParser(object):
                 'user':     '-'
                 'time':     datetime('27/Mar/2018:10:15:27 -0400'),
                 'request':  'GET /item/electronics/4380 HTTP/1.1',
+                'method':   'GET'
+                'section':  '/item'
                 'status':   '200',
                 'size':     '43',
                 'referrer': '/category/books',
@@ -62,20 +66,25 @@ class LogParser(object):
 
         Note that data not found will be equal to None (see cookies).
 
-        else return empty dict.
+        else return None.
         """
         _match = cls.__pattern.match(log)
 
         if not _match:
-            return {}
+            return None
 
         d = _match.groupdict()
+
+        d['section'] = get_section(d['url'])
 
         if d['time']:
             d['time'] = datetime.strptime(d['time'], cls.__date_fmt)
 
+        if d['user'] == '-':
+            d['user'] = None
+
         return d
 
         # TODO
-        # Create another classmethod for invalid log
+        # Create another classmethod for error log
         # located in /var/log/apache/error.log

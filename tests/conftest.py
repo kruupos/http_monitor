@@ -9,4 +9,5 @@ from sniwi.parser import LogParser
 
 @pytest.fixture
 def parser():
-    return LogParser()
+    """ Returns LogParser class"""
+    return LogParser
