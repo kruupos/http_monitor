@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.1 - 2018-10-17
+- [\#13](https://github.com/kruupos/sniwi/issues/6) Hotfix syntax
+
 ## 1.0.0 - 2018-10-17
 ### Added
 - [\#1](https://github.com/kruupos/sniwi/issues/1) Setup skeleton
