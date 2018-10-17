@@ -44,7 +44,7 @@ python3 -m sniwi
 # first build the docker image, you need to do this only once
 docker-compose build
 # then launch the app
-docker-compose run --rm sniwi
+docker-compose run --rm sniwi # May freeze.
 ```
 
 Note: if you have docker-for-windows installed you can use
