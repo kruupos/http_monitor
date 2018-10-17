@@ -77,7 +77,7 @@ optional arguments:
 
 Done with `pytest`
 
-#### Using docker (recommanded)
+#### run using docker (recommanded)
 
 ```bash
 # first build the docker image, you need to do this only once
@@ -86,7 +86,7 @@ docker-compose -f ./docker-compose.test.yml build
 docker-compose -f ./docker-compose.test.yml run --rm pytest
 ```
 
-#### Using pytest
+#### run using pytest
 
 ```bash
 # run pipenv
@@ -95,7 +95,7 @@ pipenv shell
 pytest ./tests -v
 ```
 
-#### Architecture
+## Architecture
 
 ### Sniwi
 
