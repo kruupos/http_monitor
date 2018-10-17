@@ -28,7 +28,7 @@ OR
 #### 1. Clone this repository. 
 
 ```bash
-# clone the frontend repository
+# clone sniwi repository
 git clone https://github.com/kruupos/sniwi.git
 ```
 
