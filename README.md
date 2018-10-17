@@ -3,10 +3,13 @@
 # SNIWI
 
 Sniwi - the kiwi sniffer, is a monitoring tool intended to alert any user by detecting high HTTP traffic appening real-time on a webserver.
+
+```
   __ _
  /  ('>-
  \__/
- L\_                           
+ L\_
+ ```                           
 
 
 It will simply 'sniff' the [apache logfile](https://httpd.apache.org/docs/2.2/en/logs.html) located in `/var/log/apache.log` and giving you interseting feedback it might have found.
