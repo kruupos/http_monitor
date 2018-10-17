@@ -4,6 +4,7 @@ Main loop of the application
 """
 from contextlib import suppress
 import asyncio
+import functools
 
 from sniwi.sniwi import Sniwi
 
@@ -15,6 +16,25 @@ def cancel_task(task, loop):
     task.cancel()
     with suppress(asyncio.CancelledError):
         loop.run_until_complete(task)
+
+
+def schedule(f, interval):
+    """
+    Decorator template for method's class,
+    will run itself every `interval` seconds.
+    Is asynchronous
+
+    params:
+        timer: (int) interval in second
+    """
+    from functools import wraps
+
+    @wraps(f)
+    async def wrapper(*args, **kwargs):
+        while True:
+            await asyncio.sleep(interval)
+            await f(*args, **kwargs)
+    return asyncio.ensure_future(wrapper())
 
 
 def main():
@@ -46,17 +66,10 @@ def main():
     # Starts the ui to display alerts and other info
     ui_task = asyncio.ensure_future(proc.ui())
 
-    # Reads in async mode the EOF of '/var/log/apache.log'
-    sniffer_task = asyncio.ensure_future(proc.aio_readline())
-
-    # Collect number of hits per seconds
-    tick_task = asyncio.ensure_future(proc.tick())
-
-    # Schedule a timer to launch an alert every X time
-    alert_task = asyncio.ensure_future(proc.alert())
-
-    # schedule a timer to display information of the taffic
-    stat_task = asyncio.ensure_future(proc.stat())
+    sniffer_task = schedule(proc.aio_readline, interval=1)
+    tick_task = schedule(proc.tick, interval=1)
+    alert_task = schedule(proc.alert, interval=120)
+    stat_task = schedule(proc.stat, interval=10)
     try:
         loop.run_forever()
         # loop.run_until_complete(ui_task)
@@ -67,3 +80,6 @@ def main():
             cancel_task(task, loop)
         loop.close()
         print('ending program')
+
+        # # After the changes in 3.7
+        # asyncio.gather(*asyncio.all_tasks()).cancel()

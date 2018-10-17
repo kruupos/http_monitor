@@ -16,7 +16,7 @@ HITS_PER_SECS_TRESHOLD = 20_000
 
 
 class Sniwi(object):
-    def __init__(self, loop, file_path=u'\\var\\log\\apache.log', alert_timer=120, stat_timer=10, alert_treshold=10):
+    def __init__(self, loop, file_path=u'\\var\\log\\apache.log', alert_treshold=10):
         """
         Sniwi main class
 
@@ -26,19 +26,11 @@ class Sniwi(object):
         params:
             loop: asyncio main loop
             file_path: (str) the name of the file to watch
-            alert_timer: (int) a timer to schedule the task alert
-            stat_timer: (int) a timer to schedule the stat alert
             alert_treshold: (int) number of average requests to trigger an alert
         """
         self.file_path = file_path
 
-        self.alert_timer = alert_timer
-        self.stat_timer = stat_timer
-        self.tick_timer = 1
-
         self.alert_treshold = alert_treshold
-
-        self.tick_flag = asyncio.Event()
 
         self.alert_flag = False
 
@@ -64,10 +56,10 @@ class Sniwi(object):
             data: a dict of the parsed log file
         """
 
-        # When there is too many data at once, the CPU cycle does not allowed
-        # to run tick timer at the right time.
+        # It may take too much time to process data
+        # we call this to switch task
         if self.hit_per_sec > HITS_PER_SECS_TRESHOLD:
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.3)
 
         if data['user']:
             self.user_dict[data['user']] += 1
@@ -76,7 +68,6 @@ class Sniwi(object):
         self.hit_per_sec += 1
         self.total_hit += 1
 
-    @timer('tick_timer')
     async def aio_readline(self):
         """
         read line from file_path and retrieve dict with various info
@@ -87,20 +78,14 @@ class Sniwi(object):
                 continue
             await self.update_metrics(data)
 
-    @timer('tick_timer')
     async def tick(self):
         """ This task run every second as a clock to update the interface """
-        self.tick_flag.set()
         self.hit_list.append(self.hit_per_sec)
         print(self.hit_per_sec)
         self.hit_per_sec = 0
-        self.tick_flag.clear()
 
-    @timer('alert_timer')
     async def alert(self):
         """ This task send alert to the interface """
-        await self.tick_flag.wait()
-
         if self.hit_list:
             min_hits = min(self.hit_list)
             max_hits = max(self.hit_list)
@@ -118,7 +103,6 @@ class Sniwi(object):
 
         print(average_hits)
 
-    @timer('stat_timer')
     async def stat(self):
         """ This task give feedback from what happening every `stat_timer` to the interface """
         top_users = top_three(self.user_dict)

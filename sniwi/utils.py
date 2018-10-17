@@ -2,29 +2,8 @@
 """
 Utils functions needed by Sniwi class to make them more readable
 """
-import asyncio
 from operator import itemgetter
 from urllib.parse import urlparse
-
-
-def timer(timer):
-    """
-    Decorator template for method's class,
-    will run itself every `timer` seconds.
-    Is asynchronous
-
-    params:
-        timer: (str) name of the timer define in the class
-        flag: (asyncio.Event()) set before entering the function
-              and clear afterward
-    """
-    def _timer(f):
-        async def wrapper(self, *args, **kwargs):
-            while True:
-                await asyncio.sleep(1)
-                await f(self, *args, **kwargs)
-        return wrapper
-    return _timer
 
 
 def top_three(d):
