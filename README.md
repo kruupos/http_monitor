@@ -26,9 +26,10 @@ git clone https://github.com/kruupos/sniwi.git
 
 ### 2. Run the app
 
-#### Locally, if you have python 3.7 installed
+#### Locally, if you have python 3.7 and pipenv installed 
 
 ```bash
+pipenv shell
 python3 -m sniwi
 ```
 
@@ -38,8 +39,16 @@ python3 -m sniwi
 # first build the docker image, you need to do this only once
 docker-compose build
 # then launch the app
-docker-compose --rm run sniwi
+docker-compose run --rm sniwi
 ```
+
+Note: if you have docker-for-windows installed you can use
+
+```bash
+docker-compose run --rm sniwi_windows
+```
+
+it will map the container folder `/var/log` to your current folder.
 
 Because tty and stdin are set to true in docker-compose, running the app will launch the app directly inside your terminal
 
@@ -59,8 +68,8 @@ docker-compose -f ./docker-compose.test.yml run --rm pytest
 #### Using pytest
 
 ```bash
-# First install pytest >= 3.8.2 for python3.7
-pip3 install pytest==3.8.2
+# run pipenv
+pipenv shell
 # Then run the tests
 pytest ./tests -v
 ```

@@ -4,6 +4,6 @@ Main entry of the program
 """
 
 import sys
-from sniwi.sniwi import main
+from sniwi.looper import main
 
 sys.exit(main())

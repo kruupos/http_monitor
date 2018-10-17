@@ -11,3 +11,16 @@ services:
       - '3000:3000'
     volumes:
       - .:/usr/src/app
+      - /var/log:/var/log
+
+  sniwindows:
+    container_name: sniwindows
+    build: .
+    stdin_open: true
+    tty: true
+    command: python3 -m sniwi
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+      - .:/var/log
