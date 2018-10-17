@@ -50,6 +50,7 @@ class Sniffer(object):
                 data = LogParser.std_log(line)
 
                 if not data:
+                    await asyncio.sleep(0.1)
                     if not self.buffer:
                         self.buffer = line
                     else:

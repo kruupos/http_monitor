@@ -3,17 +3,16 @@
 Main loop of the application
 """
 import asyncio
-from collections import defaultdict
-from time import gmtime, strftime
+from collections import defaultdict, deque
 
-# from sniwi.interface import ConsoleInterface
+from sniwi.interface import ConsoleInterface
 from sniwi.parser import LogParser
 from sniwi.utils import top_three
 from sniwi.sniffer import Sniffer
 
 
 class Sniwi(object):
-    def __init__(self, loop, file_path, alert_threshold=10):
+    def __init__(self, loop, file_path, threshold_max_hits=10, alert_interval=120, traffic_interval=10):
         """
         Sniwi main class
 
@@ -23,28 +22,30 @@ class Sniwi(object):
         params:
             loop: asyncio main loop
             file_path: (str) the name of the file to watch
-            alert_threshold: (int) number of average requests to trigger an alert
+            threshold_max_hits: (int) number of average requests to trigger an alert
+            alert_interval: (int) interval in second for alert
+            traffic_interval: (int) interval in second for refreshing traffic information
         """
         self.file_path = file_path
 
-        self.alert_threshold = alert_threshold
+        self.threshold_max_hits = threshold_max_hits
 
         self.alert_flag = False
 
         self.hit_per_sec = 0
         self.total_hit = 0
-        self.hit_list = []
+        self.alert_deque = deque(maxlen=alert_interval)
+        self.traffic_deque = deque(maxlen=traffic_interval)
 
         self.url_section_dict = defaultdict(int)
         self.user_dict = defaultdict(int)
 
-        # self.interface = ConsoleInterface(loop)
+        self.interface = ConsoleInterface(loop, file_path, threshold_max_hits, alert_interval, traffic_interval)
         self.sniffer = Sniffer(file_path)
 
     async def ui(self):
         """ start the console """
-        pass
-        # await self.interface.run()
+        await self.interface.run()
 
     async def update_metrics(self, data):
         """ update main metrics of the application
@@ -71,44 +72,32 @@ class Sniwi(object):
 
     async def tick(self):
         """ This task run every second as a clock to update the interface """
-        self.hit_list.append(self.hit_per_sec)
-        print(self.hit_per_sec)
+        self.alert_deque.append(self.hit_per_sec)
+        self.traffic_deque.append(self.hit_per_sec)
+        self.interface.update_hits(self.hit_per_sec, self.total_hit)
         self.hit_per_sec = 0
 
     async def alert(self):
         """ This task send alert to the interface """
-        average_hits = min_hits = max_hits = 0
-        if self.hit_list:
-            min_hits = min(self.hit_list)
-            max_hits = max(self.hit_list)
-            average_hits = sum(self.hit_list) / len(self.hit_list)
-        self.hit_list.clear()
+        average_hits = sum(self.alert_deque) / len(self.alert_deque) if self.alert_deque else 0
 
-        time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-
-        if self.alert_flag and average_hits < self.alert_threshold:
-            print(f'High traffic stopped at {time}')
+        if self.alert_flag and average_hits < self.threshold_max_hits:
             self.alert_flag = False
-        elif average_hits >= self.alert_threshold:
-            print(f'High traffic generated an alert - hits = {average_hits}, triggered at {time}')
+            self.interface.update_alert(self.alert_flag, average_hits)
+        elif not self.alert_flag and average_hits >= self.threshold_max_hits:
             self.alert_flag = True
+            self.interface.update_alert(self.alert_flag, average_hits)
 
-        print(average_hits)
-
-    async def stat(self):
-        """ This task give feedback from what happening every `stat_timer` to the interface """
+    async def traffic(self):
+        """ This task give feedback from what happening every `traffic_interval` to the interface """
         top_users = top_three(self.user_dict)
         self.user_dict.clear()
 
         top_sections = top_three(self.url_section_dict)
         self.url_section_dict.clear()
 
-        print(top_sections)
-        print(top_users)
+        self.interface.update_traffic(top_sections, top_users, self.traffic_deque)
 
     def shutdown_ui(self):
         """ This function is called in case of a SIGINT, it stops the interface properly """
-        print('TOTAL HIT')
-        print(self.total_hit)
-        pass
-        # self.interface.shutdown()
+        self.interface.shutdown()
