@@ -17,7 +17,7 @@ def top_three(d):
         list of three or less elements
     """
     sorted_gen_values = sorted(d.items(), key=itemgetter(1), reverse=True)
-    return [f'{k}: {v}' for k, v in sorted_gen_values][:3]
+    return [f'{k: <10}: {v}' for k, v in sorted_gen_values][:3]
 
 
 def get_section(url):
