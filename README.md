@@ -39,8 +39,16 @@ python3 -m sniwi
 # first build the docker image, you need to do this only once
 docker-compose build
 # then launch the app
-docker-compose --rm run sniwi
+docker-compose run --rm sniwi
 ```
+
+Note: if you have docker-for-windows installed you can use
+
+```bash
+docker-compose run --rm sniwi_windows
+```
+
+it will map the container folder `/var/log` to your current folder.
 
 Because tty and stdin are set to true in docker-compose, running the app will launch the app directly inside your terminal
 
