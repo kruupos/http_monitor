@@ -5,7 +5,6 @@ Sniffer, file reader class in "tail -f" mode
 import aiofiles
 import asyncio
 import os
-import sys
 
 from sniwi.parser import LogParser
 
