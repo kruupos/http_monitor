@@ -65,8 +65,8 @@ def main():
 
     # Starts the ui to display alerts and other info
     ui_task = asyncio.ensure_future(proc.ui())
+    sniffer_task = asyncio.ensure_future(proc.aio_readline())
 
-    sniffer_task = schedule(proc.aio_readline, interval=1)
     tick_task = schedule(proc.tick, interval=1)
     alert_task = schedule(proc.alert, interval=120)
     stat_task = schedule(proc.stat, interval=10)

@@ -17,15 +17,8 @@ class Sniffer(object):
         If the file exists and is readable, go to EOF
         """
         self.file_path = file_path
-        self.ino = 0
-        self.f = open(file_path, 'r', encoding='utf-8', errors='ignore')
-        self.f.seek(0, os.SEEK_END)
-        self.ino = os.fstat(self.f.fileno()).st_ino
 
-        # Needed to handle half line when reaching EOF before a newline
-        self.buffer = ''
-
-    def readline_generator(self):
+    async def readline_generator(self):
         """
         Read every new line appening in the file and yield it
 
@@ -38,26 +31,30 @@ class Sniffer(object):
 
        is intended to be used as a generator:
         example:
-            for line in sniffer.readline_generator():
+            async for line in sniffer.readline_generator():
                 # do stuff with line
         """
-        while True:
-            line = self.f.readline()
+        # Needed to handle half line when reaching EOF before a newline
+        self.buffer = ''
 
-            if not line:
-                break
+        async with aiofiles.open(self.file_path, mode='r', encoding='utf-8', errors='ignore') as f:
+            await f.seek(0, os.SEEK_END)
 
-            data = LogParser.std_log(line)
+            while True:
+                line = await f.readline()
 
-            if not data:
-                if not self.buffer:
-                    self.buffer = line
-                else:
-                    self.buffer += line
-                    data = LogParser.std_log(self.buffer)
-                    self.buffer = ''
+                if not line:
+                    await asyncio.sleep(1)
+                    continue
 
-            yield data
+                data = LogParser.std_log(line)
 
-        # TODO
-        # Implement a method to close the file descriptor
+                if not data:
+                    if not self.buffer:
+                        self.buffer = line
+                    else:
+                        self.buffer += line
+                        data = LogParser.std_log(self.buffer)
+                        self.buffer = ''
+
+                yield data
