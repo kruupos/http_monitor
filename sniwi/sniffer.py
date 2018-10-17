@@ -11,14 +11,8 @@ from sniwi.parser import LogParser
 
 class Sniffer(object):
 
-    def __init__(self, file_path):
-        """
-        First open file in read mode,
-        If the file exists and is readable, go to EOF
-        """
-        self.file_path = file_path
-
-    async def readline_generator(self):
+    @classmethod
+    async def readline_generator(cls, file):
         """
         Read every new line appening in the file and yield it
 
@@ -35,9 +29,9 @@ class Sniffer(object):
                 # do stuff with line
         """
         # Needed to handle half line when reaching EOF before a newline
-        self.buffer = ''
+        buffer = ''
 
-        async with aiofiles.open(self.file_path, mode='r', encoding='utf-8', errors='ignore') as f:
+        async with aiofiles.open(file, mode='r', encoding='utf-8', errors='ignore') as f:
             await f.seek(0, os.SEEK_END)
 
             while True:
@@ -51,11 +45,11 @@ class Sniffer(object):
 
                 if not data:
                     await asyncio.sleep(0.1)
-                    if not self.buffer:
-                        self.buffer = line
+                    if not buffer:
+                        buffer = line
                     else:
-                        self.buffer += line
-                        data = LogParser.std_log(self.buffer)
-                        self.buffer = ''
+                        buffer += line
+                        data = LogParser.std_log(buffer)
+                        buffer = ''
 
                 yield data

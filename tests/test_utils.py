@@ -15,16 +15,16 @@ class TestUtils(object):
     @pytest.mark.parametrize('in_dict,out_list,explanation', [
         (
             {'max': 20, 'audrey': 50, 'sandra': 25, 'felix': 10},
-            ['audrey: 50', 'sandra: 25', 'max: 20'],
+            ['audrey    : 50', 'sandra    : 25', 'max       : 20'],
             'with normal dict'
         ),
         (
             defaultdict(int, {'max': 20, 'audrey': 50, 'sandra': 25, 'felix': 10}),
-            ['audrey: 50', 'sandra: 25', 'max: 20'],
+            ['audrey    : 50', 'sandra    : 25', 'max       : 20'],
             'with defaultdict'
         ),
         ({}, [], 'with empty dict'),
-        ({'max': 20, 'audrey': 50}, ['audrey: 50', 'max: 20'], 'with small dict')
+        ({'max': 20, 'audrey': 50}, ['audrey    : 50', 'max       : 20'], 'with small dict')
     ])
     def test_top_three(self, in_dict, out_list, explanation):
         """

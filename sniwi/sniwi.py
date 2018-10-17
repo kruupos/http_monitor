@@ -41,7 +41,6 @@ class Sniwi(object):
         self.user_dict = defaultdict(int)
 
         self.interface = ConsoleInterface(loop, file_path, threshold_max_hits, alert_interval, traffic_interval)
-        self.sniffer = Sniffer(file_path)
 
     async def ui(self):
         """ start the console """
@@ -65,7 +64,7 @@ class Sniwi(object):
         read line from file_path and retrieve dict with various info
         at each lines
         """
-        async for data in self.sniffer.readline_generator():
+        async for data in Sniffer.readline_generator(self.file_path):
             if not data:
                 continue
             await self.update_metrics(data)

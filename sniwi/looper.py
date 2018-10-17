@@ -23,21 +23,18 @@ def get_args():
 
     parser.add_argument(
         '-i', '--threshold-max-hits',
-        metavar='SECOND',
         default=10,
         type=int,
         help='ratio requests/secs to trigger an alert')
 
     parser.add_argument(
         '-a', '--alert-interval',
-        metavar='SECOND',
         default=120,
         type=int,
         help='Interval for alert')
 
     parser.add_argument(
         '-t', '--traffic-interval',
-        metavar='SECOND',
         default=10,
         type=int,
         help='Interval for refreshing traffic information')
@@ -97,8 +94,7 @@ def main():
     args = get_args()
 
     if not os.path.isfile(args.file_path):
-        sys.stderr.write('your path file is invalid\n')
-        return -1
+        sys.exit(f'{args.file_path} not found, you can specify your own file log with -f argument')
 
     loop = asyncio.get_event_loop()
     proc = Sniwi(loop=loop,
@@ -121,6 +117,3 @@ def main():
         for task in [sniffer_task, tick_task, alert_task, traffic_task]:
             cancel_task(task, loop)
         loop.close()
-
-        # # After the changes in 3.7
-        # asyncio.gather(*asyncio.all_tasks()).cancel()

@@ -22,16 +22,16 @@ class LogParser(object):
 
     # Regex for the common Apache log format.
     __std_log_parts = [
-        r'(?P<host>\S+)',              # host %h
-        r'\s+\S+',                     # indent %l (unused)
-        r'\s+(?P<user>\S+)',           # user %u
-        r'\s+\[(?P<time>.+)\]',        # time %t
+        r'(?P<host>\S+)',                                              # host %h
+        r'\s+\S+',                                                     # indent %l (unused)
+        r'\s+(?P<user>\S+)',                                           # user %u
+        r'\s+\[(?P<time>.+)\]',                                        # time %t
         r'\s+"(?P<request>(?P<method>[A-Z]+)\s(?P<url>\S+).*)"',       # request "%r"
-        r'\s+(?P<status>[0-9]+)',      # status %>s
-        r'\s+(?P<size>\S+)',           # size %b (careful, can be '-')
-        r'(\s+"(?P<referrer>.*?)")?',  # referrer "%{Referer}i"
-        r'(\s+"(?P<agent>.*?)")?',     # user agent "%{User-agent}i"
-        r'(\s+"(?P<cookies>.*?)")?',   # cookies "%{Cookies}i"
+        r'\s+(?P<status>[0-9]+)',                                      # status %>s
+        r'\s+(?P<size>\S+)',                                           # size %b (careful, can be '-')
+        r'(\s+"(?P<referrer>.*?)")?',                                  # referrer "%{Referer}i"
+        r'(\s+"(?P<agent>.*?)")?',                                     # user agent "%{User-agent}i"
+        r'(\s+"(?P<cookies>.*?)")?',                                   # cookies "%{Cookies}i"
     ]
 
     __date_fmt = '%d/%b/%Y:%H:%M:%S %z'
