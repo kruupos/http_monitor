@@ -5,8 +5,43 @@ Main loop of the application
 from contextlib import suppress
 import asyncio
 import functools
+import argparse
+import sys
+import os
 
 from sniwi.sniwi import Sniwi
+
+
+def get_args():
+    parser = argparse.ArgumentParser(prog='sniwi')
+    parser.add_argument(
+        '-f', '--file-path',
+        default=u'/var/log/apache.log',
+        metavar='PATH',
+        type=str,
+        help='path of monitoring file')
+
+    parser.add_argument(
+        '-t', '--alert-threshold',
+        metavar='SECOND',
+        default=10,
+        type=int,
+        help='number of avergae hits/secs to trigger alert')
+
+    parser.add_argument(
+        '-a', '--alert-interval',
+        metavar='SECOND',
+        default=120,
+        type=int,
+        help='Interval for alert')
+
+    parser.add_argument(
+        '-s', '--stat-interval',
+        metavar='SECOND',
+        default=10,
+        type=int,
+        help='Interval for refreshing traffic information')
+    return parser.parse_args()
 
 
 def cancel_task(task, loop):
@@ -60,16 +95,22 @@ def main():
     in other term the application stop.
     """
     print('start program')
+    args = get_args()
+
+    if not os.path.isfile(args.file_path):
+        sys.stderr.write('your path_file is invalid\n')
+        return -1
+
     loop = asyncio.get_event_loop()
-    proc = Sniwi(loop, 'file.log')
+    proc = Sniwi(loop=loop, file_path=args.file_path, alert_threshold=args.alert_threshold)
 
     # Starts the ui to display alerts and other info
     ui_task = asyncio.ensure_future(proc.ui())
     sniffer_task = asyncio.ensure_future(proc.aio_readline())
 
     tick_task = schedule(proc.tick, interval=1)
-    alert_task = schedule(proc.alert, interval=120)
-    stat_task = schedule(proc.stat, interval=10)
+    alert_task = schedule(proc.alert, interval=args.alert_interval)
+    stat_task = schedule(proc.stat, interval=args.stat_interval)
     try:
         loop.run_forever()
         # loop.run_until_complete(ui_task)

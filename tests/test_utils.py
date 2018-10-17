@@ -14,13 +14,13 @@ class TestUtils(object):
     """
     @pytest.mark.parametrize('in_dict,out_list,explanation', [
         (
-            {'max': 20, 'audrey': 50, 'larissa': 25, 'felix': 10},
-            ['audrey: 50', 'larissa: 25', 'max: 20'],
+            {'max': 20, 'audrey': 50, 'sandra': 25, 'felix': 10},
+            ['audrey: 50', 'sandra: 25', 'max: 20'],
             'with normal dict'
         ),
         (
-            defaultdict(int, {'max': 20, 'audrey': 50, 'larissa': 25, 'felix': 10}),
-            ['audrey: 50', 'larissa: 25', 'max: 20'],
+            defaultdict(int, {'max': 20, 'audrey': 50, 'sandra': 25, 'felix': 10}),
+            ['audrey: 50', 'sandra: 25', 'max: 20'],
             'with defaultdict'
         ),
         ({}, [], 'with empty dict'),

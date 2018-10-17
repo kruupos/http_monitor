@@ -8,15 +8,12 @@ from time import gmtime, strftime
 
 # from sniwi.interface import ConsoleInterface
 from sniwi.parser import LogParser
-from sniwi.utils import timer, top_three
+from sniwi.utils import top_three
 from sniwi.sniffer import Sniffer
 
 
-HITS_PER_SECS_TRESHOLD = 20_000
-
-
 class Sniwi(object):
-    def __init__(self, loop, file_path=u'\\var\\log\\apache.log', alert_treshold=10):
+    def __init__(self, loop, file_path, alert_threshold=10):
         """
         Sniwi main class
 
@@ -26,11 +23,11 @@ class Sniwi(object):
         params:
             loop: asyncio main loop
             file_path: (str) the name of the file to watch
-            alert_treshold: (int) number of average requests to trigger an alert
+            alert_threshold: (int) number of average requests to trigger an alert
         """
         self.file_path = file_path
 
-        self.alert_treshold = alert_treshold
+        self.alert_threshold = alert_threshold
 
         self.alert_flag = False
 
@@ -55,12 +52,6 @@ class Sniwi(object):
         params:
             data: a dict of the parsed log file
         """
-
-        # It may take too much time to process data
-        # we call this to switch task
-        if self.hit_per_sec > HITS_PER_SECS_TRESHOLD:
-            await asyncio.sleep(0.3)
-
         if data['user']:
             self.user_dict[data['user']] += 1
         if data['section']:
@@ -73,7 +64,7 @@ class Sniwi(object):
         read line from file_path and retrieve dict with various info
         at each lines
         """
-        for data in self.sniffer.readline_generator():
+        async for data in self.sniffer.readline_generator():
             if not data:
                 continue
             await self.update_metrics(data)
@@ -86,6 +77,7 @@ class Sniwi(object):
 
     async def alert(self):
         """ This task send alert to the interface """
+        average_hits = min_hits = max_hits = 0
         if self.hit_list:
             min_hits = min(self.hit_list)
             max_hits = max(self.hit_list)
@@ -94,10 +86,10 @@ class Sniwi(object):
 
         time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
 
-        if self.alert_flag and average_hits < self.alert_treshold:
+        if self.alert_flag and average_hits < self.alert_threshold:
             print(f'High traffic stopped at {time}')
             self.alert_flag = False
-        elif average_hits >= self.alert_treshold:
+        elif average_hits >= self.alert_threshold:
             print(f'High traffic generated an alert - hits = {average_hits}, triggered at {time}')
             self.alert_flag = True
 

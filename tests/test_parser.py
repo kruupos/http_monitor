@@ -15,7 +15,7 @@ def load_json_list(file):
 
 class TestLogParser(object):
     """
-    Test every method of LogParser
+    Test methods of LogParser
     with valid and invalid log string format
     """
 

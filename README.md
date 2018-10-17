@@ -26,9 +26,10 @@ git clone https://github.com/kruupos/sniwi.git
 
 ### 2. Run the app
 
-#### Locally, if you have python 3.7 installed
+#### Locally, if you have python 3.7 and pipenv installed 
 
 ```bash
+pipenv shell
 python3 -m sniwi
 ```
 
@@ -59,8 +60,8 @@ docker-compose -f ./docker-compose.test.yml run --rm pytest
 #### Using pytest
 
 ```bash
-# First install pytest >= 3.8.2 for python3.7
-pip3 install pytest==3.8.2
+# run pipenv
+pipenv shell
 # Then run the tests
 pytest ./tests -v
 ```
